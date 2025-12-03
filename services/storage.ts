@@ -1,7 +1,10 @@
-import { GalleryImage, LoveNote } from '../types';
+
+import { GalleryImage, LoveNote, Milestone } from '../types';
 
 const IMAGES_KEY = 'our_love_story_images';
 const NOTES_KEY = 'our_love_story_notes';
+const MILESTONES_KEY = 'our_love_story_milestones';
+const START_DATE_KEY = 'our_love_story_start_date';
 
 // Helper to resize image before saving to avoid LocalStorage quota limits
 export const processImageFile = (file: File): Promise<string> => {
@@ -92,4 +95,32 @@ export const saveNote = (note: LoveNote): void => {
 export const deleteNote = (id: string): void => {
   const notes = getNotes().filter(note => note.id !== id);
   localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+};
+
+export const getMilestones = (): Milestone[] => {
+  try {
+    const stored = localStorage.getItem(MILESTONES_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (error) {
+    return [];
+  }
+};
+
+export const saveMilestone = (milestone: Milestone): void => {
+  const milestones = getMilestones();
+  const updated = [...milestones, milestone];
+  localStorage.setItem(MILESTONES_KEY, JSON.stringify(updated));
+};
+
+export const deleteMilestone = (id: string): void => {
+  const milestones = getMilestones().filter(m => m.id !== id);
+  localStorage.setItem(MILESTONES_KEY, JSON.stringify(milestones));
+};
+
+export const getStartDate = (): string | null => {
+  return localStorage.getItem(START_DATE_KEY);
+};
+
+export const saveStartDate = (date: string): void => {
+  localStorage.setItem(START_DATE_KEY, date);
 };

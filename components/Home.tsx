@@ -1,6 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { ViewState } from '../types';
 import { HeartIcon } from './Icons';
+import { getStartDate, saveStartDate } from '../services/storage';
 
 declare global {
   interface Window {
@@ -24,6 +26,54 @@ const QUOTES = [
 const Home: React.FC<HomeProps> = ({ setView }) => {
   const [showSurprise, setShowSurprise] = useState(false);
   const [quote, setQuote] = useState("");
+  const [startDate, setStartDate] = useState<string | null>(null);
+  const [timeTogether, setTimeTogether] = useState<{days: number, years: number, months: number} | null>(null);
+  const [isEditingDate, setIsEditingDate] = useState(false);
+
+  useEffect(() => {
+    const savedDate = getStartDate();
+    if (savedDate) {
+      setStartDate(savedDate);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (startDate) {
+      const calculateTime = () => {
+        const start = new Date(startDate);
+        const now = new Date();
+        
+        let years = now.getFullYear() - start.getFullYear();
+        let months = now.getMonth() - start.getMonth();
+        let days = now.getDate() - start.getDate();
+
+        if (days < 0) {
+          months--;
+          days += new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+        }
+        if (months < 0) {
+          years--;
+          months += 12;
+        }
+        setTimeTogether({ years, months, days });
+      };
+
+      calculateTime();
+      const timer = setInterval(calculateTime, 1000 * 60 * 60); // Update every hour
+      return () => clearInterval(timer);
+    }
+  }, [startDate]);
+
+  const handleDateSave = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const date = formData.get('startDate') as string;
+    if (date) {
+      saveStartDate(date);
+      setStartDate(date);
+      setIsEditingDate(false);
+    }
+  };
 
   const handleSurprise = () => {
     // Select random quote
@@ -44,13 +94,54 @@ const Home: React.FC<HomeProps> = ({ setView }) => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] px-4 text-center">
-      <div className="animate-float mb-8">
+      <div className="animate-float mb-8 mt-4">
         <HeartIcon className="text-romantic-deep w-24 h-24 sm:w-32 sm:h-32 drop-shadow-lg" />
       </div>
 
-      <h1 className="font-hand text-5xl sm:text-7xl text-romantic-deep mb-6">
+      <h1 className="font-hand text-5xl sm:text-7xl text-romantic-deep mb-4">
         Welcome, My Love
       </h1>
+
+      {/* Relationship Counter */}
+      <div className="mb-8 p-4 bg-white/50 rounded-xl border border-romantic-rose/50 backdrop-blur-sm max-w-md w-full">
+        {!startDate || isEditingDate ? (
+          <form onSubmit={handleDateSave} className="flex flex-col gap-2 items-center">
+            <label className="text-sm font-serif text-gray-600">When did our story begin?</label>
+            <div className="flex gap-2">
+              <input 
+                name="startDate"
+                type="date" 
+                defaultValue={startDate || ''}
+                className="px-3 py-1 rounded border border-romantic-mauve focus:outline-none focus:ring-2 focus:ring-romantic-deep text-gray-700 bg-white"
+                required
+              />
+              <button type="submit" className="bg-romantic-deep text-white px-3 py-1 rounded text-sm hover:bg-romantic-accent transition">Save</button>
+              {isEditingDate && startDate && (
+                <button type="button" onClick={() => setIsEditingDate(false)} className="text-gray-500 text-sm hover:text-gray-700">Cancel</button>
+              )}
+            </div>
+          </form>
+        ) : (
+          <div onClick={() => setIsEditingDate(true)} className="cursor-pointer group relative" title="Click to edit date">
+            <p className="font-serif text-gray-600 mb-1">We have been falling in love for</p>
+            <div className="font-serif text-2xl sm:text-3xl text-romantic-deep font-bold flex gap-4 justify-center items-baseline">
+              {timeTogether && (
+                <>
+                  <span className="flex flex-col items-center">
+                    {timeTogether.years} <span className="text-xs font-normal text-gray-500 uppercase tracking-wider">Years</span>
+                  </span>
+                  <span className="flex flex-col items-center">
+                    {timeTogether.months} <span className="text-xs font-normal text-gray-500 uppercase tracking-wider">Months</span>
+                  </span>
+                  <span className="flex flex-col items-center">
+                    {timeTogether.days} <span className="text-xs font-normal text-gray-500 uppercase tracking-wider">Days</span>
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
 
       <p className="font-serif text-lg sm:text-xl text-gray-700 max-w-lg mb-10 leading-relaxed">
         I built this little corner of the internet just for us. A place to keep our memories, our notes, and the little moments that make life sweet.
@@ -65,10 +156,10 @@ const Home: React.FC<HomeProps> = ({ setView }) => {
         </button>
         
         <button
-          onClick={() => setView('gallery')}
+          onClick={() => setView('timeline')}
           className="bg-white text-romantic-deep border-2 border-romantic-deep px-8 py-4 rounded-full font-serif font-bold text-lg shadow-md hover:bg-romantic-rose hover:scale-105 transition-all duration-300"
         >
-          View Our Gallery
+          View Our Timeline
         </button>
       </div>
 

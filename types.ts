@@ -1,3 +1,4 @@
+
 export interface LoveNote {
   id: string;
   content: string;
@@ -12,7 +13,14 @@ export interface GalleryImage {
   date: string;
 }
 
-export type ViewState = 'home' | 'gallery' | 'notes' | 'upload';
+export interface Milestone {
+  id: string;
+  date: string; // YYYY-MM-DD
+  title: string;
+  description: string;
+}
+
+export type ViewState = 'home' | 'gallery' | 'notes' | 'upload' | 'timeline';
 
 export interface IconProps {
   className?: string;

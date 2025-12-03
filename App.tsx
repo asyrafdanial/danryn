@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import Header from './components/Header';
 import Home from './components/Home';
 import Gallery from './components/Gallery';
 import Upload from './components/Upload';
 import LoveNotes from './components/LoveNotes';
+import Timeline from './components/Timeline';
 import { ViewState } from './types';
 
 const App: React.FC = () => {
@@ -19,6 +21,8 @@ const App: React.FC = () => {
         return <Upload setView={setCurrentView} />;
       case 'notes':
         return <LoveNotes />;
+      case 'timeline':
+        return <Timeline />;
       default:
         return <Home setView={setCurrentView} />;
     }

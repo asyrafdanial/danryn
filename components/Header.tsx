@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ViewState } from '../types';
 import { HeartIcon } from './Icons';
@@ -12,6 +13,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, setView }) => {
 
   const navItems: { id: ViewState; label: string }[] = [
     { id: 'home', label: 'Home' },
+    { id: 'timeline', label: 'Our Timeline' },
     { id: 'gallery', label: 'Gallery' },
     { id: 'notes', label: 'Love Notes' },
     { id: 'upload', label: 'Upload' },
